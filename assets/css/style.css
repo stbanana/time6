@@ -177,7 +177,7 @@ a {
   justify-content: space-between;
   gap: 16px;
   min-height: 64px;
-  padding: 12px max(20px, calc((100vw - 560px) / 2 + 20px));
+  padding: 12px max(20px, calc((100vw - 620px) / 2 + 20px));
   background: var(--topbar-bg);
   border-bottom: 1px solid var(--border);
   -webkit-backdrop-filter: blur(16px);
@@ -258,7 +258,7 @@ main {
   flex-direction: column;
   align-items: stretch;
   width: 100%;
-  max-width: 560px;
+  max-width: 620px;
   min-height: calc(100svh - 64px);
   margin: 0 auto;
   padding: clamp(16px, 3vw, 28px) 20px 0;
@@ -287,7 +287,7 @@ main {
 
 .watch {
   position: relative;
-  width: min(100%, 390px);
+  width: min(100%, 440px);
   margin-inline: auto;
   isolation: isolate;
 }
@@ -404,7 +404,7 @@ main {
 }
 
 .face-time {
-  font-size: clamp(2.8rem, 13vw, 3.8rem);
+  font-size: clamp(2.8rem, 13vw, 4.1rem);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
