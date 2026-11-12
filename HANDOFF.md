@@ -94,7 +94,7 @@ time6/
 - [x] 倒计时在 20:00 前显示「距推荐入睡」，20:00 后显示「已过推荐入睡」。
 - [x] 跨天 / 跨周无跳变、无负值。
 - [x] 320 / 390 / 768 / 1024 / 1440 五档无横向滚动。
-- [x] 线上地址可访问，Console 无报错；Lighthouse 性能 ≥ 99 / 无障碍 100 / 最佳实践 100 / SEO 100。
+- [x] 线上地址可访问，Console 无报错；Lighthouse 性能 100 / 无障碍 100 / 最佳实践 100 / SEO 100。
 - [x] 页面无「阶段」「一周 6 轮」等旧模块。
 - [ ] iOS Safari 真机（地址栏收缩）待实测。
 
@@ -118,7 +118,7 @@ git push origin main
 
 - `node tests/schedule.test.js`：锚点、20:00 边界、跨天/跨周、1000 次随机时刻、无「秒」断言全部通过。
 - 无头 Edge（`file://`）：5 档视口 `scrollWidth == innerWidth`，Console 0 报错；表盘 28 刻度 / 7 个数字 / 1 个入睡刻度；模拟 21:30 时正确显示「已过推荐入睡 1 小时 30 分」。
-- 线上：HTTP 200，CSS/JS/favicon 均 200。
+- 线上：HTTP 200，CSS/JS/favicon 均 200；Lighthouse 性能 100 / 无障碍 100 / 最佳实践 100 / SEO 100。
 
 ---
 
