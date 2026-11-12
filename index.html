@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>time6 · 28 小时周历</title>
+  <meta name="description" content="把一周看成 6 轮 × 28 小时（8 小时睡眠 + 20 小时清醒）的实时表盘：现在第几轮、处于哪个阶段、几点睡、几点醒。">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#070b16">
+  <link rel="icon" href="./assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <script>
+    // 首屏前定主题，避免闪白；默认深色（可切换并记住）。
+    (function () {
+      try {
+        var saved = localStorage.getItem('time6:theme');
+        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
+      } catch (e) { /* file:// 或隐私模式下忽略 */ }
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="16" fill="#0d1526"></rect>
+        <circle cx="32" cy="32" r="18" fill="none" stroke="#26314d" stroke-width="6"></circle>
+        <path d="M32 14 A18 18 0 0 1 49.55 36" fill="none" stroke="#8ea2ff" stroke-width="6" stroke-linecap="round"></path>
+        <path d="M49.55 36 A18 18 0 1 1 32 14" fill="none" stroke="#ffb454" stroke-width="6" stroke-linecap="round"></path>
+        <circle cx="32" cy="14" r="3.4" fill="#ffb454"></circle>
+      </svg>
+      <span class="brand-name">time6</span>
+      <span class="brand-sub">28 小时周历</span>
+    </div>
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="切换到浅色主题">
+      <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="4.2"></circle>
+        <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"></path>
+      </svg>
+      <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"></path>
+      </svg>
+    </button>
+  </header>
+
+  <main id="main">
+    <section class="hero card" id="hero" aria-labelledby="heroTitle">
+      <h1 class="sr-only" id="heroTitle">当前时间与 28 小时周期</h1>
+
+      <div class="watch">
+        <svg class="dial" viewBox="0 0 400 400" role="img" aria-labelledby="dialTitle dialDesc">
+          <title id="dialTitle">28 小时周期表盘</title>
+          <desc id="dialDesc">圆环前八小时为睡眠，后二十小时为清醒并被分为十三个阶段；亮色弧线与指针表示本轮已经过去的时间。</desc>
+          <circle class="dial-rim" cx="200" cy="200" r="160"></circle>
+          <g class="dial-ticks" id="dialTicks" aria-hidden="true"></g>
+          <circle class="dial-track" cx="200" cy="200" r="128"></circle>
+          <g class="dial-stages" id="dialStages" aria-hidden="true"></g>
+          <g class="dial-labels" id="dialLabels" aria-hidden="true"></g>
+          <path class="dial-progress" id="dialProgress" d=""></path>
+          <g class="dial-head" id="dialHead" aria-hidden="true">
+            <line x1="200" y1="100" x2="200" y2="50"></line>
+            <circle cx="200" cy="94" r="4.6"></circle>
+          </g>
+        </svg>
+
+        <div class="face">
+          <p class="face-cycle" id="faceCycle">第 — 轮 / 6</p>
+          <p class="face-time" aria-hidden="true">
+            <span id="clockHM">--:--</span><span class="clock-sep" aria-hidden="true">:</span><span class="clock-sec" id="clockSec">--</span>
+          </p>
+          <p class="sr-only" id="srClock">正在读取时间</p>
+          <p class="face-date" id="faceDate">—</p>
+          <p class="face-state" id="faceState"><span class="state-dot" aria-hidden="true"></span><span id="stateText">—</span></p>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="countdown-block">
+          <p class="eyebrow" id="countdownLabel">距入睡</p>
+          <p class="countdown" id="countdown"><span id="cdText">—</span></p>
+          <p class="countdown-at" id="countdownAt">—</p>
+        </div>
+
+        <dl class="facts">
+          <div>
+            <dt>本轮入睡</dt>
+            <dd id="factSleep">—</dd>
+          </div>
+          <div>
+            <dt>本轮起床</dt>
+            <dd id="factWake">—</dd>
+          </div>
+        </dl>
+
+        <p class="notice" id="heroNotice" hidden></p>
+
+        <p class="legend" aria-label="表盘图例">
+          <span class="legend-item"><i class="swatch swatch-sleep" aria-hidden="true"></i>睡眠 8h</span>
+          <span class="legend-item"><i class="swatch swatch-awake" aria-hidden="true"></i>清醒 20h</span>
+          <span class="legend-item"><i class="swatch swatch-now" aria-hidden="true"></i>本轮进度</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="card rhythm" aria-labelledby="rhythmTitle">
+      <div class="card-head">
+        <h2 id="rhythmTitle">本轮节奏</h2>
+        <p class="card-sub" id="rhythmRange">—</p>
+      </div>
+
+      <div class="now-stage">
+        <p class="now-stage-name" id="stageName">—</p>
+        <p class="now-stage-time" id="stageTime">—</p>
+      </div>
+
+      <div class="bar" id="stageBarWrap" role="progressbar" aria-labelledby="stageName" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span class="bar-fill" id="stageBar"></span>
+      </div>
+
+      <p class="next-up" id="nextUp">—</p>
+
+      <details class="stages">
+        <summary>完整阶段表 · 清醒 20 小时 / 13 段</summary>
+        <ol class="stage-list" id="stageList"></ol>
+      </details>
+    </section>
+
+    <section class="card week" aria-labelledby="weekTitle">
+      <div class="card-head">
+        <h2 id="weekTitle">一周 6 轮</h2>
+        <p class="card-sub">周一 00:00 锚点 · 每轮 28 小时</p>
+      </div>
+
+      <ul class="week-list" id="weekList" aria-label="本周 6 轮入睡与起床时间"></ul>
+
+      <p class="week-note">浅蓝为睡眠 8 小时，暖色为清醒 20 小时。第 3–5 轮的睡眠落在白天，是 28 小时节律的自然结果。</p>
+    </section>
+
+    <footer class="foot">
+      <p>本工具只做时间换算，不构成睡眠或健康建议。</p>
+      <p class="foot-meta">
+        <span id="tzLabel">本地时区</span>
+        <span aria-hidden="true">·</span>
+        <span>数据只留在本机</span>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/stbanana/time6" rel="noopener">GitHub</a>
+      </p>
+    </footer>
+  </main>
+
+  <p class="sr-only" id="liveStatus" aria-live="polite" aria-atomic="true"></p>
+
+  <noscript>
+    <p class="fatal">这个页面需要 JavaScript 才能计算 28 小时周期，请在浏览器中启用后刷新。</p>
+  </noscript>
+
+  <script src="./assets/js/schedule.js"></script>
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>
