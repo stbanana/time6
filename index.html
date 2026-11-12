@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>time6 · 28 小时周历</title>
-  <meta name="description" content="把一周看成 6 轮 × 28 小时（8 小时睡眠 + 20 小时清醒）的实时表盘：现在第几轮、处于哪个阶段、几点睡、几点醒。">
+  <title>28h 时钟 · time6</title>
+  <meta name="description" content="一天 28 小时、一周 6 天的时钟：以 28 小时制显示现在的时间，并给出每天的推荐入睡时间与倒计时。">
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#070b16">
   <link rel="icon" href="./assets/img/favicon.svg" type="image/svg+xml">
@@ -32,7 +32,7 @@
         <circle cx="32" cy="14" r="3.4" fill="#ffb454"></circle>
       </svg>
       <span class="brand-name">time6</span>
-      <span class="brand-sub">28 小时周历</span>
+      <span class="brand-sub">一天 28 小时 · 一周 6 天</span>
     </div>
     <button class="icon-btn" id="themeToggle" type="button" aria-label="切换到浅色主题">
       <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -46,114 +46,62 @@
   </header>
 
   <main id="main">
-    <section class="hero card" id="hero" aria-labelledby="heroTitle">
-      <h1 class="sr-only" id="heroTitle">当前时间与 28 小时周期</h1>
+    <section class="clock-card card" aria-labelledby="clockTitle">
+      <h1 class="sr-only" id="clockTitle">28 小时制时钟</h1>
 
       <div class="watch">
         <svg class="dial" viewBox="0 0 400 400" role="img" aria-labelledby="dialTitle dialDesc">
-          <title id="dialTitle">28 小时周期表盘</title>
-          <desc id="dialDesc">圆环前八小时为睡眠，后二十小时为清醒并被分为十三个阶段；亮色弧线与指针表示本轮已经过去的时间。</desc>
+          <title id="dialTitle">28 小时表盘</title>
+          <desc id="dialDesc">表盘一圈为 28 小时；指针指示当前的 28 小时制时间，紫色刻度标记每天的推荐入睡时间。</desc>
           <circle class="dial-rim" cx="200" cy="200" r="160"></circle>
           <g class="dial-ticks" id="dialTicks" aria-hidden="true"></g>
           <circle class="dial-track" cx="200" cy="200" r="128"></circle>
-          <g class="dial-stages" id="dialStages" aria-hidden="true"></g>
-          <g class="dial-labels" id="dialLabels" aria-hidden="true"></g>
+          <g class="dial-numerals" id="dialNumerals" aria-hidden="true"></g>
+          <g class="dial-bedtime" id="dialBedtime" aria-hidden="true"></g>
           <path class="dial-progress" id="dialProgress" d=""></path>
-          <g class="dial-head" id="dialHead" aria-hidden="true">
-            <line x1="200" y1="100" x2="200" y2="50"></line>
-            <circle cx="200" cy="94" r="4.6"></circle>
+          <path class="dial-overdue" id="dialOverdue" d=""></path>
+          <g class="dial-hand" id="dialHand" aria-hidden="true">
+            <line x1="200" y1="92" x2="200" y2="50"></line>
+            <circle cx="200" cy="72" r="5.2"></circle>
           </g>
         </svg>
 
         <div class="face">
-          <p class="face-cycle" id="faceCycle">第 — 轮 / 6</p>
-          <p class="face-time" aria-hidden="true">
-            <span id="clockHM">--:--</span><span class="clock-sep" aria-hidden="true">:</span><span class="clock-sec" id="clockSec">--</span>
+          <p class="face-day" id="faceDay">— · 第 — / 6 天</p>
+          <p class="face-time">
+            <span class="sr-only" id="srClock">正在读取时间</span>
+            <span id="clockTime" aria-hidden="true">--:--</span>
           </p>
-          <p class="sr-only" id="srClock">正在读取时间</p>
-          <p class="face-date" id="faceDate">—</p>
-          <p class="face-state" id="faceState"><span class="state-dot" aria-hidden="true"></span><span id="stateText">—</span></p>
+          <p class="face-zone">28 小时制</p>
         </div>
       </div>
 
-      <div class="hero-meta">
-        <div class="countdown-block">
-          <p class="eyebrow" id="countdownLabel">距入睡</p>
-          <p class="countdown" id="countdown"><span id="cdText">—</span></p>
-          <p class="countdown-at" id="countdownAt">—</p>
+      <div class="sleep-panel">
+        <div class="sleep-block">
+          <p class="block-label"><span class="mark-sleep" aria-hidden="true"></span>推荐入睡</p>
+          <p class="block-value" id="bedtime">20:00</p>
         </div>
-
-        <dl class="facts">
-          <div>
-            <dt>本轮入睡</dt>
-            <dd id="factSleep">—</dd>
-          </div>
-          <div>
-            <dt>本轮起床</dt>
-            <dd id="factWake">—</dd>
-          </div>
-        </dl>
-
-        <p class="notice" id="heroNotice" hidden></p>
-
-        <p class="legend" aria-label="表盘图例">
-          <span class="legend-item"><i class="swatch swatch-sleep" aria-hidden="true"></i>睡眠 8h</span>
-          <span class="legend-item"><i class="swatch swatch-awake" aria-hidden="true"></i>清醒 20h</span>
-          <span class="legend-item"><i class="swatch swatch-now" aria-hidden="true"></i>本轮进度</span>
-        </p>
+        <div class="sleep-block count-block" id="countBlock">
+          <p class="block-label" id="countLabel">距推荐入睡</p>
+          <p class="block-value" id="countValue">—</p>
+        </div>
       </div>
-    </section>
-
-    <section class="card rhythm" aria-labelledby="rhythmTitle">
-      <div class="card-head">
-        <h2 id="rhythmTitle">本轮节奏</h2>
-        <p class="card-sub" id="rhythmRange">—</p>
-      </div>
-
-      <div class="now-stage">
-        <p class="now-stage-name" id="stageName">—</p>
-        <p class="now-stage-time" id="stageTime">—</p>
-      </div>
-
-      <div class="bar" id="stageBarWrap" role="progressbar" aria-labelledby="stageName" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <span class="bar-fill" id="stageBar"></span>
-      </div>
-
-      <p class="next-up" id="nextUp">—</p>
-
-      <details class="stages">
-        <summary>完整阶段表 · 清醒 20 小时 / 13 段</summary>
-        <ol class="stage-list" id="stageList"></ol>
-      </details>
-    </section>
-
-    <section class="card week" aria-labelledby="weekTitle">
-      <div class="card-head">
-        <h2 id="weekTitle">一周 6 轮</h2>
-        <p class="card-sub">周一 00:00 锚点 · 每轮 28 小时</p>
-      </div>
-
-      <ul class="week-list" id="weekList" aria-label="本周 6 轮入睡与起床时间"></ul>
-
-      <p class="week-note">浅蓝为睡眠 8 小时，暖色为清醒 20 小时。第 3–5 轮的睡眠落在白天，是 28 小时节律的自然结果。</p>
     </section>
 
     <footer class="foot">
-      <p>本工具只做时间换算，不构成睡眠或健康建议。</p>
+      <p>28h 世界 · 00:00 起算 · 推荐入睡 20:00</p>
       <p class="foot-meta">
         <span id="tzLabel">本地时区</span>
         <span aria-hidden="true">·</span>
-        <span>数据只留在本机</span>
-        <span aria-hidden="true">·</span>
-        <a href="https://github.com/stbanana/time6" rel="noopener">GitHub</a>
+        <span>只做时间换算，不构成健康建议</span>
       </p>
     </footer>
+
+    <p class="sr-only" id="liveStatus" aria-live="polite" aria-atomic="true"></p>
   </main>
 
-  <p class="sr-only" id="liveStatus" aria-live="polite" aria-atomic="true"></p>
-
   <noscript>
-    <p class="fatal">这个页面需要 JavaScript 才能计算 28 小时周期，请在浏览器中启用后刷新。</p>
+    <p class="fatal">这个页面需要 JavaScript 才能计算 28 小时时间，请在浏览器中启用后刷新。</p>
   </noscript>
 
   <script src="./assets/js/schedule.js"></script>

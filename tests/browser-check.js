@@ -1,6 +1,7 @@
 /**
  * 开发用：无头 Edge + CDP 检查布局与运行时错误。
  * 用法：node tests/browser-check.js
+ *       CHECK_URL=https://stbanana.github.io/time6/ node tests/browser-check.js
  * 不参与线上运行；需要本机安装 Edge / Chrome。
  */
 'use strict';
@@ -20,9 +21,10 @@ if (!browserPath) {
 }
 
 const PORT = 9333;
-const PAGE_URL = 'file:///' + path.resolve(__dirname, '..', 'index.html').replace(/\\/g, '/');
+const PAGE_URL = process.env.CHECK_URL ||
+  'file:///' + path.resolve(__dirname, '..', 'index.html').replace(/\\/g, '/');
 const PROFILE = path.join(process.env.TEMP, 'time6-cdp-' + Date.now());
-const OUT_DIR = path.join(__dirname, '..', '.preview');
+const OUT_DIR = path.join(__dirname, '..', '.preview', process.env.CHECK_URL ? 'online' : 'local');
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
@@ -79,14 +81,6 @@ async function waitForEndpoint() {
   throw new Error('浏览器调试端口未就绪');
 }
 
-const VIEWPORTS = [
-  { name: 'mobile-320', width: 320, height: 760, mobile: true },
-  { name: 'mobile-390', width: 390, height: 844, mobile: true },
-  { name: 'tablet-768', width: 768, height: 1024, mobile: true },
-  { name: 'desktop-1024', width: 1024, height: 900, mobile: false },
-  { name: 'desktop-1440', width: 1440, height: 1000, mobile: false }
-];
-
 async function fullShot(name) {
   const metrics = await send('Page.getLayoutMetrics');
   const size = metrics.cssContentSize || metrics.contentSize;
@@ -104,6 +98,14 @@ async function fullShot(name) {
   fs.writeFileSync(path.join(OUT_DIR, name + '.png'), Buffer.from(shot.data, 'base64'));
 }
 
+const VIEWPORTS = [
+  { name: 'mobile-320', width: 320, height: 760, mobile: true },
+  { name: 'mobile-390', width: 390, height: 844, mobile: true },
+  { name: 'tablet-768', width: 768, height: 1024, mobile: true },
+  { name: 'desktop-1024', width: 1024, height: 900, mobile: false },
+  { name: 'desktop-1440', width: 1440, height: 1000, mobile: false }
+];
+
 const CHECK_SCRIPT = `(() => {
   const out = { width: innerWidth, height: innerHeight, errors: [] };
   const rect = (el) => {
@@ -112,60 +114,50 @@ const CHECK_SCRIPT = `(() => {
     return { x: +r.x.toFixed(1), y: +r.y.toFixed(1), w: +r.width.toFixed(1), h: +r.height.toFixed(1) };
   };
   const text = (id) => (document.getElementById(id) || {}).textContent || '';
+  const s = window.Time6.stateAt(Date.now());
 
   out.docScrollWidth = document.documentElement.scrollWidth;
+  out.docScrollHeight = document.documentElement.scrollHeight;
   out.bodyScrollWidth = document.body.scrollWidth;
   out.overflowX = out.docScrollWidth - innerWidth;
 
-  out.clock = text('clockHM');
-  out.seconds = text('clockSec');
-  out.cycle = text('faceCycle');
-  out.date = text('faceDate');
-  out.state = text('stateText');
-  out.countdownLabel = text('countdownLabel');
-  out.countdown = text('cdText');
-  out.countdownAt = text('countdownAt');
-  out.stage = text('stageName');
-  out.stageTime = text('stageTime');
-  out.nextUp = text('nextUp');
-  out.heroNoticeHidden = document.getElementById('heroNotice').hidden;
-  out.heroNotice = text('heroNotice');
-  out.weekRows = document.querySelectorAll('.week-row').length;
-  out.weekTimes = [...document.querySelectorAll('.week-times')].map((n) => n.textContent);
-  out.weekDayTags = [...document.querySelectorAll('.week-tag')].map((n) => n.textContent);
-  out.currentWeekRows = document.querySelectorAll('.week-row.is-current').length;
-  out.currentStageRows = document.querySelectorAll('.stage-row.is-current').length;
-  out.stageRows = document.querySelectorAll('.stage-row').length;
-  out.dialStages = document.querySelectorAll('.dial-stage').length;
-  out.dialTicks = document.querySelectorAll('.dial-tick').length;
+  out.clock = text('clockTime');
+  out.expectedClock = s.timeText;
+  out.day = s.weekday;
+  out.faceDay = text('faceDay');
+  out.bedtime = text('bedtime');
+  out.countLabel = text('countLabel');
+  out.countValue = text('countValue');
+  out.countBlockPast = document.getElementById('countBlock').classList.contains('is-past');
+  out.title = document.title;
   out.theme = document.documentElement.dataset.theme;
-  out.clockFont = getComputedStyle(document.getElementById('clockHM')).fontSize;
-  out.heroTextAlign = getComputedStyle(document.querySelector('.hero-meta')).textAlign;
 
-  const ft = document.querySelector('.face-time').getBoundingClientRect();
-  const fc = document.querySelector('.face').getBoundingClientRect();
-  out.faceTimeOverflow = ft.width > fc.width + 0.5 || ft.height > fc.height + 0.5;
+  out.hasSecondsText = document.body.innerText.indexOf('秒') !== -1;
+  out.hasStageUI = document.querySelectorAll('.stage-row, .week-row, .rhythm, .week').length > 0;
+  out.ticks = document.querySelectorAll('.dial-tick').length;
+  out.numerals = document.querySelectorAll('.dial-num').length;
+  out.bedtimeMarks = document.querySelectorAll('.dial-bedtime-line').length;
+  out.handDots = document.querySelectorAll('.dial-hand circle').length;
+  out.bedtimeNumeral = document.querySelectorAll('.dial-num.is-bedtime').length;
+  out.progressD = (document.getElementById('dialProgress').getAttribute('d') || '').length;
+  out.overdueD = (document.getElementById('dialOverdue').getAttribute('d') || '').length;
 
-  out.rects = {
-    topbar: rect(document.querySelector('.topbar')),
-    hero: rect(document.querySelector('.hero')),
-    watch: rect(document.querySelector('.watch')),
-    face: rect(document.querySelector('.face')),
-    faceTime: rect(document.querySelector('.face-time')),
-    countdown: rect(document.getElementById('cdText')),
-    week: rect(document.querySelector('.week')),
-    foot: rect(document.querySelector('.foot'))
-  };
+  out.clockFont = getComputedStyle(document.getElementById('clockTime')).fontSize;
+  out.clockCard = rect(document.querySelector('.clock-card'));
+  out.watch = rect(document.querySelector('.watch'));
+  out.face = rect(document.querySelector('.face'));
+  out.faceTime = rect(document.getElementById('clockTime'));
+  out.sleepPanel = rect(document.querySelector('.sleep-panel'));
+  out.foot = rect(document.querySelector('.foot'));
 
   const named = [
     ['topbar', document.querySelector('.topbar')],
     ['brand', document.querySelector('.brand')],
-    ['hero', document.querySelector('.hero')],
+    ['card', document.querySelector('.clock-card')],
     ['watch', document.querySelector('.watch')],
-    ['countdown', document.getElementById('cdText')],
-    ['facts', document.querySelector('.facts')],
-    ['rhythm', document.querySelector('.rhythm')],
-    ['week', document.querySelector('.week')],
+    ['clock', document.getElementById('clockTime')],
+    ['sleep-panel', document.querySelector('.sleep-panel')],
+    ['count', document.getElementById('countValue')],
     ['foot', document.querySelector('.foot')]
   ];
   out.outOfBounds = named.filter(([, el]) => {
@@ -174,12 +166,15 @@ const CHECK_SCRIPT = `(() => {
     return r.left < -0.5 || r.right > innerWidth + 0.5;
   }).map(([n]) => n);
 
-  // 无文本溢出容器（允许 stage-row-name 省略号）
-  out.textOverflow = [...document.querySelectorAll('.countdown, .face-time, .week-times, .card-head h2, .foot-meta')]
+  out.textOverflow = [...document.querySelectorAll('.face-day, .face-time, .block-label, .block-value, .foot-meta')]
     .filter((el) => el.scrollWidth > el.clientWidth + 1)
     .map((el) => el.className || el.id);
 
-  out.weekRowOverflow = [...document.querySelectorAll('.week-row')]
+  const ft = document.getElementById('clockTime').getBoundingClientRect();
+  const fc = document.querySelector('.face').getBoundingClientRect();
+  out.faceTimeOverflow = ft.width > fc.width + 0.5 || ft.height > fc.height + 0.5;
+
+  out.sleepPanelOverflow = [...document.querySelectorAll('.sleep-panel .block-value')]
     .filter((el) => el.scrollWidth > el.clientWidth + 1).length;
 
   return out;
@@ -222,7 +217,7 @@ const CHECK_SCRIPT = `(() => {
     await send('Log.enable');
     await send('Page.enable');
     await send('Page.reload', { ignoreCache: true });
-    await sleep(1200);
+    await sleep(PAGE_URL.startsWith('http') ? 2200 : 1200);
 
     const report = { page: PAGE_URL, problems, viewports: [] };
 
@@ -241,8 +236,28 @@ const CHECK_SCRIPT = `(() => {
       fs.writeFileSync(path.join(OUT_DIR, vp.name + '.png'), Buffer.from(shot.data, 'base64'));
     }
 
-    // 主题切换与 localStorage（默认深色）
+    // 模拟「已过推荐入睡」的界面分支
     await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+    await sleep(250);
+    report.pastBedtime = await evaluate(`(() => {
+      const s = window.Time6.stateAt(Date.now());
+      const fake = s.bedtimeAt + 90 * 60000;
+      window.__realNow = Date.now;
+      Date.now = () => fake;
+      document.dispatchEvent(new Event('visibilitychange'));
+      return {
+        clock: document.getElementById('clockTime').textContent,
+        label: document.getElementById('countLabel').textContent,
+        value: document.getElementById('countValue').textContent,
+        pastClass: document.getElementById('countBlock').classList.contains('is-past'),
+        overdueD: (document.getElementById('dialOverdue').getAttribute('d') || '').length,
+        dotPast: document.getElementById('dialHand').classList.contains('is-past')
+      };
+    })()`);
+    await evaluate(`Date.now = window.__realNow; document.dispatchEvent(new Event('visibilitychange'));`);
+    await sleep(150);
+
+    // 主题切换 + 整页截图
     report.themeInitial = await evaluate(`document.documentElement.dataset.theme`);
 
     await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
@@ -266,18 +281,9 @@ const CHECK_SCRIPT = `(() => {
     await sleep(250);
     report.themeAfterSecondToggle = await evaluate(`document.documentElement.dataset.theme`);
 
-    // 展开完整阶段表后的高度 / 横向溢出
-    await evaluate(`document.querySelector('.stages').open = true`);
-    await sleep(250);
-    report.stagesOpen = await evaluate(`(() => {
-      const list = document.querySelector('.stage-list');
-      const r = list.getBoundingClientRect();
-      return { rows: list.children.length, left: r.left, right: r.right, width: innerWidth, overflowX: document.documentElement.scrollWidth - innerWidth };
-    })()`);
-
     fs.writeFileSync(path.join(OUT_DIR, 'report.json'), JSON.stringify(report, null, 2));
     console.log(JSON.stringify(report, null, 2));
-    console.log('\n截图与报告已写入 .preview/');
+    console.log('\n截图与报告已写入 ' + OUT_DIR);
   } catch (err) {
     console.error('检查失败:', err.message);
     process.exitCode = 1;
