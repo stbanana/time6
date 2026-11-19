@@ -5,6 +5,7 @@
 一天 28 小时，一周 6 天。页面只做一件事：**用 28 小时制显示现在几点**，并告诉你距离每天的推荐入睡时间还有多久。
 
 **线上地址：<https://stbanana.github.io/time6/>**
+**Android APK：<https://github.com/stbanana/time6/releases>**
 
 ---
 
@@ -16,6 +17,14 @@
 - **倒计时**：`距推荐入睡 2 小时 13 分`，过了入睡点则显示 `已过推荐入睡 …`
 
 没有阶段、没有睡眠时长、没有一周 6 轮表；不推算睡眠，也不显示真实世界的日期和秒。
+
+---
+
+## Android 客户端
+
+`android/` 是同功能的原生 Android App（Kotlin + Jetpack Compose）：28h 时钟、6 天星期、推荐入睡 20:00、倒计时、深浅主题；无网络权限，离线可用，APK 在 Releases 下载。
+
+构建、安装与配置说明见 [`android/README.md`](./android/README.md)。时间模型与 Web 完全一致，常量分别在 `assets/js/schedule.js` 和 `android/app/src/main/java/io/github/stbanana/time6/TimeModel.kt`。
 
 ---
 
@@ -72,15 +81,18 @@ node tests/browser-check.js
 
 ```
 time6/
-├─ index.html               # 唯一页面
+├─ index.html               # Web 唯一页面
 ├─ assets/
 │  ├─ css/style.css         # 配色、表盘、响应式、主题
 │  ├─ js/schedule.js        # 纯计算：28h 时间 / 星期 / 推荐入睡
 │  ├─ js/app.js             # 渲染：表盘 SVG、时钟、倒计时、主题
 │  └─ img/favicon.svg
-├─ tests/                   # 仅开发用，不参与线上运行
+├─ android/                 # 原生 Android 客户端（Kotlin / Compose）
+├─ .github/workflows/       # Android 构建 / 发布
+├─ tests/                   # Web 端仅开发用，不参与线上运行
 ├─ .nojekyll
-└─ HANDOFF.md               # 世界模型与交接说明
+├─ HANDOFF.md               # 世界模型与交接说明
+└─ README.md
 ```
 
 ## 部署
