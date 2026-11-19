@@ -1,4 +1,4 @@
-package io.github.stbanana.time6.ui
+﻿package io.github.stbanana.time6.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -116,7 +116,7 @@ fun ClockScreen(
                 )
             }
 
-            Footer()
+            Footer(state.bedtimeText)
         }
     }
 }
@@ -456,7 +456,7 @@ private fun CountdownBlock(
 }
 
 @Composable
-private fun Footer() {
+private fun Footer(bedtimeText: String) {
     val palette = LocalTime6Palette.current
     val zone = ZoneId.systemDefault().id
     Column(
@@ -466,7 +466,7 @@ private fun Footer() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.footer_world),
+            text = stringResource(R.string.footer_world, bedtimeText),
             color = palette.muted,
             style = LocalTextStyle.current.copy(fontSize = 12.sp),
             textAlign = TextAlign.Center

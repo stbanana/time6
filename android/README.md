@@ -51,7 +51,8 @@ cd android
 ./gradlew :app:testDebugUnitTest
 ```
 
-JVM 单测覆盖：锚点、20:00 边界、跨天/跨周、1000 次随机不变量、`America/New_York` DST 不变量、格式化与「不含秒」断言。
+- **时间模型单测**：锚点、20:00 边界、跨天/跨周、1000 次随机不变量、`America/New_York` DST 不变量、格式化与「不含秒」断言。
+- **渲染冒烟测试**：Robolectric + Compose 在 JVM 上渲染 390dp 深/浅色、320dp、横屏四种画面，断言关键文案，并把 PNG 写到 `app/build/screenshots/`。不需要模拟器或真机。
 
 ## 配置
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">time6</string>
     <string name="brand_sub">一天 28 小时 · 一周 6 天</string>
@@ -9,7 +9,7 @@
     <string name="label_past">已过推荐入睡</string>
     <string name="label_now">推荐入睡</string>
     <string name="value_sleep_now">该睡了</string>
-    <string name="footer_world">28h 世界 · 00:00 起算 · 推荐入睡 20:00</string>
+    <string name="footer_world">28h 世界 · 00:00 起算 · 推荐入睡 %1$s</string>
     <string name="footer_meta">%1$s · 只做时间换算，不构成健康建议</string>
     <string name="theme_to_light">切换到浅色主题</string>
     <string name="theme_to_dark">切换到深色主题</string>

@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import io.github.stbanana.time6.ClockState
+import io.github.stbanana.time6.TimeModel
 import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.sin
@@ -91,10 +92,13 @@ fun ClockDial(state: ClockState, modifier: Modifier = Modifier) {
         }
         val nativeCanvas = drawContext.canvas.nativeCanvas
 
-        for (hour in intArrayOf(0, 4, 8, 12, 16, 20, 24)) {
+        val numeralHours = (listOf(0, 4, 8, 12, 16, 20, 24) + TimeModel.BEDTIME_HOUR)
+            .distinct()
+            .sorted()
+        for (hour in numeralHours) {
             val angle = Math.toRadians(-90.0 + 360.0 * hour / 28.0).toFloat()
             val position = point(center, d * 0.445f, angle)
-            val paint = if (hour == 20) bedtimePaint else numberPaint
+            val paint = if (hour == TimeModel.BEDTIME_HOUR) bedtimePaint else numberPaint
             val baseline = position.y - (paint.ascent() + paint.descent()) / 2f
             nativeCanvas.drawText(
                 String.format(Locale.ROOT, "%02d", hour),

@@ -138,7 +138,7 @@ git push origin main
 
 - **位置**：`android/`，原生 Kotlin + Jetpack Compose；Web 仍在仓库根目录，Pages 仍从 `main` 根目录发布，**Web 文件不改**。
 - **时间模型**：与 `assets/js/schedule.js` 逐条一致。Android 端在 `android/app/src/main/java/io/github/stbanana/time6/TimeModel.kt`；`BEDTIME_HOUR` 与 `ANCHOR_DATE` 两处常量需与 Web 同步修改。
-- **单测**：`TimeModelTest.kt` 覆盖锚点、20:00 边界、跨天/跨周、随机不变量、DST 与「不含秒」；与 Web 的 `tests/schedule.test.js` 使用同一组测试向量。
+- **单测**：`TimeModelTest.kt` 覆盖锚点、20:00 边界、跨天/跨周、随机不变量、DST 与「不含秒」；`ClockScreen*Test.kt` 用 Robolectric 在 JVM 渲染 390dp 深/浅、320dp、横屏并输出截图，无需模拟器。
 - **界面**：28h Canvas 表盘、主时钟、星期、推荐入睡、倒计时、深浅主题；全屏沉浸；无网络权限。
 - **构建**：JDK 17 + Android SDK 35；`cd android && ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug`。
 - **发布**：`android-v*` tag 触发 `.github/workflows/android-release.yml`，生成 debug 签名 APK；日常构建 artifact 见 `.github/workflows/android.yml`。
