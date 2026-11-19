@@ -141,7 +141,7 @@ git push origin main
 - **单测**：`TimeModelTest.kt` 覆盖锚点、20:00 边界、跨天/跨周、随机不变量、DST 与「不含秒」；`ClockScreen*Test.kt` 用 Robolectric 在 JVM 渲染 390dp 深/浅、320dp、横屏并输出截图，无需模拟器。
 - **界面**：28h Canvas 表盘、主时钟、星期、推荐入睡、倒计时、深浅主题；全屏沉浸；无网络权限。
 - **构建**：JDK 17 + Android SDK 35；`cd android && ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug`。
-- **发布**：`android-v*` tag 触发 `.github/workflows/android-release.yml`，生成 debug 签名 APK；日常构建 artifact 见 `.github/workflows/android.yml`。
+- **发布**：`android-v1.0.0` tag 已触发 `.github/workflows/android-release.yml`，Release：<https://github.com/stbanana/time6/releases/tag/android-v1.0.0>（debug 签名 APK）；日常构建 artifact 见 `.github/workflows/android.yml`。
 - **不参与 Web 发布**：Android workflow 只在 `android/**` 变化时运行；Android 源码不是 Web 入口，不影响页面运行。
 
 ### 零干扰检查
@@ -151,7 +151,7 @@ git push origin main
 
 ### Android 验收
 
-- [x] `testDebugUnitTest` / `lintDebug` / `assembleDebug` 通过。
-- [x] APK 包名 `io.github.stbanana.time6`、versionName `1.0.0`。
+- [x] `testDebugUnitTest` / `lintDebug` / `assembleDebug` 通过（13 个 JVM 测试，含 4 个 Robolectric 渲染冒烟）。
+- [x] APK 包名 `io.github.stbanana.time6`、versionName `1.0.0`；Release `android-v1.0.0` 已上传。
 - [ ] 真机安装与视觉确认（由用户完成；如接 adb 设备可补安装截图）。
 - [x] Web 端回归与线上地址检查。

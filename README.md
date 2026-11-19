@@ -5,7 +5,7 @@
 一天 28 小时，一周 6 天。页面只做一件事：**用 28 小时制显示现在几点**，并告诉你距离每天的推荐入睡时间还有多久。
 
 **线上地址：<https://time.yono233.cn/>**（旧地址 <https://stbanana.github.io/time6/> 自动跳转）
-**Android APK：<https://github.com/stbanana/time6/releases>**
+**Android APK：<https://github.com/stbanana/time6/releases/tag/android-v1.0.0>**
 
 ---
 
