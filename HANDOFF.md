@@ -1,7 +1,8 @@
 # 28 小时时钟 · 交接文档
 
-> 版本：v2.0　｜　日期：2026-11-13　｜　状态：**已实现、自测通过、已上线**
+> 版本：v2.1　｜　日期：2026-11-20　｜　状态：**Web v2 + Android v1 已实现**
 > v2.0 用「28 小时制时钟」取代 v1 的 8h 睡眠 / 13 阶段 / 一周 6 轮表；v1 见 Git 历史。
+> v2.1 增加原生 Android 客户端（`android/`），时间模型不变；Web 根目录与 Pages 发布方式不变。
 > 本文档是当前唯一事实来源；实现与文档冲突时，先改文档再改代码。
 
 ---
@@ -130,3 +131,27 @@ git push origin main
 | 28h 世界的周一 00:00 | 同文件 `ANCHOR`（必须是真实的某个周一 00:00 本地时间） |
 | 主题默认值 | `index.html` 首屏脚本与 `app.js` 的 `initTheme`（默认 dark） |
 | 颜色 | `style.css` 的 `[data-theme="dark"]` / `[data-theme="light"]` 变量 |
+
+---
+
+## 8. Android 客户端（v1.0）
+
+- **位置**：`android/`，原生 Kotlin + Jetpack Compose；Web 仍在仓库根目录，Pages 仍从 `main` 根目录发布，**Web 文件不改**。
+- **时间模型**：与 `assets/js/schedule.js` 逐条一致。Android 端在 `android/app/src/main/java/io/github/stbanana/time6/TimeModel.kt`；`BEDTIME_HOUR` 与 `ANCHOR_DATE` 两处常量需与 Web 同步修改。
+- **单测**：`TimeModelTest.kt` 覆盖锚点、20:00 边界、跨天/跨周、随机不变量、DST 与「不含秒」；`ClockScreen*Test.kt` 用 Robolectric 在 JVM 渲染 390dp 深/浅、320dp、横屏并输出截图，无需模拟器。
+- **界面**：28h Canvas 表盘、主时钟、星期、推荐入睡、倒计时、深浅主题；全屏沉浸；无网络权限。
+- **构建**：JDK 17 + Android SDK 35；`cd android && ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug`。
+- **发布**：`android-v*` tag 触发 `.github/workflows/android-release.yml`，生成 debug 签名 APK；日常构建 artifact 见 `.github/workflows/android.yml`。
+- **不参与 Web 发布**：Android workflow 只在 `android/**` 变化时运行；Android 源码不是 Web 入口，不影响页面运行。
+
+### 零干扰检查
+
+- `index.html`、`assets/**`、`tests/**` 在 Android 合并前后无 diff。
+- 合并后仍通过 `node tests/schedule.test.js`、`node tests/browser-check.js`，线上 <https://stbanana.github.io/time6/> 返回 200。
+
+### Android 验收
+
+- [x] `testDebugUnitTest` / `lintDebug` / `assembleDebug` 通过。
+- [x] APK 包名 `io.github.stbanana.time6`、versionName `1.0.0`。
+- [ ] 真机安装与视觉确认（由用户完成；如接 adb 设备可补安装截图）。
+- [x] Web 端回归与线上地址检查。
