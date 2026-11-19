@@ -21,9 +21,9 @@
 
 从 GitHub Releases 下载最新 APK：
 
-<https://github.com/stbanana/time6/releases>
+<https://github.com/stbanana/time6/releases/tag/android-v1.0.0>
 
-这是 **debug 签名** 的 APK，个人侧载足够；在手机上允许「安装未知来源应用」后打开即可。正式上架 Play Store 需要另配 release keystore 与 AAB，不在 v1 范围。
+这是 **debug 签名** 的 APK，个人侧载足够；在手机上允许「安装未知来源应用」后打开即可。CI 每次构建使用临时 debug keystore，后续版本覆盖安装若提示签名冲突，先卸载旧版再装。正式上架 Play Store 需要另配 release keystore 与 AAB，不在 v1 范围。
 
 ## 构建
 
@@ -93,4 +93,4 @@ android/
 
 ## v1 不做
 
-桌面小组件、通知/提醒、秒针、阶段/周表、Play Store 上架、自动更新。App 不申请任何权限。
+桌面小组件、通知/提醒、秒针、阶段/周表、Play Store 上架、自动更新。App 不申请任何敏感权限，也没有网络权限，完全离线。
