@@ -11,7 +11,7 @@
 
 把世界当作**一天 28 小时、一周 6 天**：页面用 28 小时制显示现在几点，并给出每天的推荐入睡时间与距离它的时间长度。
 
-**线上地址**：<https://stbanana.github.io/time6/>
+**线上地址**：<https://time.yono233.cn/>（旧地址 <https://stbanana.github.io/time6/> 自动跳转）
 **仓库**：<https://github.com/stbanana/time6>
 
 **非目标**：不做阶段划分、不做睡眠时长推算、不做一周 6 轮表、不显示真实世界日期与秒、不做后端 / 账号 / PWA。
@@ -111,7 +111,7 @@ git commit -m "feat: ..."
 git push origin main
 ```
 
-1–10 分钟后 <https://stbanana.github.io/time6/> 生效。资源路径一律相对，禁止 `/assets/...`。
+1–10 分钟后 <https://time.yono233.cn/> 生效（仓库根 `CNAME` = `time.yono233.cn`，旧地址自动跳转）。资源路径一律相对，禁止 `/assets/...`。
 
 ---
 
@@ -147,7 +147,7 @@ git push origin main
 ### 零干扰检查
 
 - `index.html`、`assets/**`、`tests/**` 在 Android 合并前后无 diff。
-- 合并后仍通过 `node tests/schedule.test.js`、`node tests/browser-check.js`，线上 <https://stbanana.github.io/time6/> 返回 200。
+- 合并后仍通过 `node tests/schedule.test.js`、`node tests/browser-check.js`，线上 <https://time.yono233.cn/> 返回 200。
 
 ### Android 验收
 
